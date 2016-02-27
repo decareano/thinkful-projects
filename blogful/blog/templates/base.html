@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Blogful</title>
+
+    <!-- CSS -->
+    <style>
+        action .title {
+                font-weight: bold;
+        }
+        a.active {
+            font-weight: bold;
+        }
+    </style>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+    <!-- Blog -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+    <!-- JavaScript -->
+    <!-- jQuery -->
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<!-- Look at the bootstrap example in ./examples/ to fix this shit -->
+<div class="navbar navbar-inverse navbar-static-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="{{ url_for('entries') }}" class="navbar-brand">Blogful</a>
+        </div>
+        <div class="collapse navbar-collapse">
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="{{ url_for('add_entry_get', page=page, limit=limit) }}" class="navbar-brand">Add Entry</a>
+                </li>
+                <li>
+                    <div class="nav navbar-nav navbar-left dropdown">
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                        {% if current_user.is_authenticated %}
+                        {{ current_user.name }}
+                        {% else %}
+                        Account
+                        {% endif %}
+                            <span class="caret">
+                            </span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            {% if current_user.is_authenticated %}
+                                <li class="dropentry"><a href="{{ url_for('logout', page=page, limit=5) }}">Logout</a></li>
+                            {% else %}
+                                <li class="dropentry"><a href="{{ url_for('login_get', page=page, limit=10) }}">Login</a></li>
+                                <li class="dropentry"><a href="{{ url_for('registration_get') }}">Register</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="alert alert-{{ category }}">
+    {{ message }}
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+
+</body>
+</html>

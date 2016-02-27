@@ -1,0 +1,45 @@
+{% from "macros.html" import nav_link with context %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Flask Template Example</title>
+	<meta>
+	<style>
+	div#main {
+		max-width: 500px;
+	}
+	nav .title {
+		font-weight: bold;
+	}
+	a.active {
+		font-weight: bold;
+	}
+	
+	</style>
+</head>
+<body>
+	<nav>
+		<span class="title">Jinja! </span>
+		<ul class="nav navbar-nav">
+			{{ nav_link('home', 'Home') }}
+			{{ nav_link('about', 'About') }}
+			{{ nav_link('contact', 'Contact us') }}
+		</ul>
+
+	</nav>
+	<div id="main">
+		<h2>This is part of my base template</h2>
+		<br>
+		{% block content %}{% endblock%}
+		<br>
+	</div>
+	<footer>
+		{% block footer %}
+		Watch! This part of the footer is coming from the base template...
+			<br>
+			<br>
+		{% endblock %}
+	</footer>
+</body>
+</html>

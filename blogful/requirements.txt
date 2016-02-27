@@ -1,0 +1,7 @@
+flask
+sqlalchemy
+Flask-Login
+flask-script
+flask-migrate
+mistune
+psycopg2

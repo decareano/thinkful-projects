@@ -1,0 +1,46 @@
+{% macro render_entry(entry, page, limit) %}
+<div class="row">
+    <div class="col-md-2 text-left metadata">
+        <ul class="list-unstyled">
+            <li>{{ entry.datetime | dateformat("%d/%m/%y") }}
+            </li>
+
+        </ul>
+    </div>
+    <div class="col-md-19">
+        <h1><a href="{{ url_for('view_entry', id=entry.id, page=page, limit=limit) }}">{{ entry.title }}</a>
+        </h1>
+        {{ entry.content | markdown}}
+    </div>
+</div>
+{% endmacro %}
+
+{% macro view_entry(entry, author_name) %}
+<div class="row">
+    <div class="col-md-2 metadata">
+        <ul class="list-unstyled">
+            <li>{{ entry.datetime | dateformat("%d/%m/%y") }}
+            </li>
+            <li>{{ author_name | markdown }}
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-19">
+        <h1>{{ entry.title | markdown }}
+        </h1>
+        {{ entry.content | markdown }}
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro action_link(endpoint, name) %}
+
+{%if request.endpoint.endswith(endpoint) %}
+    <a href="{{ endpoint }}" class="active">{{ name }}</a>
+{% else %}
+    <a href="{{ endpoint }}">{{ name }}</a>
+{% endif %}
+
+
+{% endmacro %}

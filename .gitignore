@@ -1,0 +1,8 @@
+env/
+venv/
+migrations/
+*.json
+*.pyc
+*.log
+*.note
+

@@ -1,0 +1,31 @@
+# How I got postgresql to work on linux
+# by Garrett Anderson:
+
+# thinkful lessons want me to use some sandbox fake environment, but I do my stuff
+# on my own computers and OS setups.  I use linux mint on most of my workstations,
+# and ran into a lot of problems with permissions once I got postgresql installed
+# Here is what I did to sort of alleviate the problem enough to be able to start working
+# on the database.
+
+sudo apt-get install postgresql
+ps aux | grep postgresql # make sure it is running
+sudo passwd postgres # changes password for postgresql default super user 'postgres'
+su postgres # login as user postgres
+createdb [whatever] # creates whatever database you want to start with
+psql [whatever] #connects to whatever db as user postgres
+(in postgresql terminal, connected to whatever db)
+# make sure you spell your username exactly how it is in linux or osx or whatever
+create user [your linux user name] with password '[whatever password you want]'; 
+grant all privileges on database snippets to [the linux username you just set up];
+
+######
+now should be able to do stuff to db [whatever] as your usual linux user.  The above steps create a db from the default postgresql super user account 'postgres', then adds
+your linux user as a user for the db you created, with full access and privledges.  Note
+that this access is only good for that particular database, and this process will have to
+be repeated for any other databases you create.
+
+
+NOTE: Might want to add postgres user to main linux user's group for directory access?
+usermod -a -G <groupname> username
+
+gives errors about changing directories, but doesn't seem to affect anything. not sure how to fix this without creating massive security risks on the system.

@@ -1,0 +1,19 @@
+{% import "macros.html" as macros %}
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Delete Post {{id}}?</h1>
+<h3>{{ entry.title }}</h3>
+{{ entry.content }}
+<p>
+
+<form action="" role="form" method="post">
+    <div class="form-group">
+        <button class="btn btn-default" type="submit" id="delete" name="delete" value="True">Delete
+        </button>
+        <button class="btn btn-default" type="submit" id="delete" name="delete" value="False">Cancel</button>
+    </div>
+</form>
+
+{% endblock %}
