@@ -29,6 +29,7 @@ class TestViews(unittest.TestCase):
         Base.metadata.create_all(engine)
 
         # Create an example user
+        print("Before User creation")
         self.user = User(name="Alice", email="alice@example.com",
             password=generate_password_hash("test"))
         session.add(self.user)
@@ -37,13 +38,6 @@ class TestViews(unittest.TestCase):
         # integrityError?  Try re-syncing primary key fields:
         # SELECT setval('tablename_id_seq', (SELECT MAX(id) FROM tablename)+1)
 
-        # NOTE learn more about 'multiprocessing'.  Can run/control
-        # other code simultaneously. 
-        self.process = multiprocessing.Process(target=app.run,
-            kwargs={"port": 8080})
-
-        self.process.start()
-        time.sleep(3)
 
     def test_login_correct(self):
         # Splinter
@@ -81,4 +75,11 @@ class TestViews(unittest.TestCase):
         self.browser.quit()
 
 if __name__ == '__main__':
+    # NOTE learn more about 'multiprocessing'.  Can run/control
+    # other code simultaneously. 
+    process = multiprocessing.Process(target=app.run,
+        kwargs={"port": 8080, "host": "127.0.0.1"})
+    print("multiprocessing start, PID: ", os.getpid())
+    process.start()
+    time.sleep(1)
     unittest.main()
