@@ -20,7 +20,7 @@ def posts_get():
     data = json.dumps([post.as_dictionary() for post in posts])
     return Response(data, 200, mimetype="application/json")
 
-@app.route("/api/post/<int:id>", methods=["GET"])
+@app.route("/api/posts/<int:id>", methods=["GET"])
 @decorators.accept("application/json")
 def post_get(id):
     """ Single post endpoint """
@@ -39,4 +39,3 @@ def post_get(id):
     data = json.dumps(post.as_dictionary())
     return Response(data, 200, mimetype="application/json")
 
-    
