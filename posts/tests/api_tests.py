@@ -4,10 +4,11 @@ import json
 try: from urllib.parse import urlparse
 except ImportError: from urlparse import urlparse # Python 2 compatibility
 
-# Configure our app to use the testing databse
+# Configure our app to use the testing database
 os.environ["CONFIG_PATH"] = "posts.config.TestingConfig"
 
-from posts import app
+from posts.main import app
+# from posts import main
 from posts import models
 from posts.database import Base, engine, session
 
@@ -23,7 +24,9 @@ class TestAPI(unittest.TestCase):
 
     def test_get_empty_posts(self):
         """ Getting posts from an empty database """
-        response = self.client.get("/api/posts")
+        response = self.client.get("/api/posts",
+            headers=[("Accept", "application/json")])
+
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.mimetype, "application/json")
@@ -39,7 +42,8 @@ class TestAPI(unittest.TestCase):
         session.add_all([postA, postB])
         session.commit()
 
-        response = self.client.get("/api/posts/{}".format(postB.id))
+        response = self.client.get("/api/post/{}".format(postB.id),
+            headers=[("Accept", "application/json")])
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.mimetype, "application/json")
@@ -50,13 +54,25 @@ class TestAPI(unittest.TestCase):
 
     def test_get_non_existent_post(self):
         """ Getting a single post which doesn't exist """
-        response = self.client.get("/api/posts/1")
+        response = self.client.get("/api/post/1",
+            headers=[("Accept", "application/json")])
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.mimetype, "application/json")
 
         data = json.loads(response.data.decode("ascii"))
         self.assertEqual(data["message"], "Could not find post with id 1")
+
+    def test_unsupported_accept_header(self):
+        response = self.client.get("/api/posts",
+            headers=[("Accept", "application/xml")]
+            )
+        self.assertEqual(response.status_code, 406)
+        self.assertEqual(response.mimetype, "application/json")
+
+        data = json.loads(response.data.decode("ascii"))
+        self.assertEqual(data["message"],
+            "Request must accept application/json data")
 
 
     def tearDown(self):
