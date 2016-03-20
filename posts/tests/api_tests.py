@@ -74,6 +74,20 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(data["message"],
             "Request must accept application/json data")
 
+    def test_delete_post(self):
+        postA = models.Post(title="Example Post A", body="Just a test")
+        postB = models.Post(title="Example Post B", body="Still a test")
+
+        session.add_all([postA, postB])
+        session.commit()
+
+        # How to change method to DELETE?
+        response = self.client.delete("/api/posts/{}".format(postB.id),
+            headers=[("Accept", "application/json")])
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "application/json")
+
 
     def tearDown(self):
         """ Test teardown """
