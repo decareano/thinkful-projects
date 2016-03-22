@@ -126,7 +126,7 @@ class TestAPI(unittest.TestCase):
         session.add_all([postA, postB, postC])
         session.commit()
 
-        response = self.client.get("/api/posts?title_like=whistles&body_like=bells",
+        response = self.client.get("/api/posts?title_like=whistles&body_like=Another",
             headers=[("Accept", "application/json")]
             )
 

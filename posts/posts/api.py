@@ -21,8 +21,10 @@ def posts_get():
     posts = session.query(models.Post)
     if title_like:
         posts = posts.filter(models.Post.title.contains(title_like))
+
     if body_like:
         posts = posts.filter(models.Post.body.contains(body_like))
+
 
     posts = posts.order_by(models.Post.id)
 
