@@ -83,6 +83,7 @@ def posts_post():
     """ Add new post """
     data = request.json
 
+    # Validate submitted header data, as json, against post_schema
     try:
         validate(data, post_schema)
     except ValidationError as error:
@@ -94,10 +95,43 @@ def posts_post():
     session.add(post)
     session.commit()
 
-    # Return a 201 Created, containg the post as JSON and with the 
+    # Return a 201 Created, containing the post as JSON and with the 
     # Location header set to the location of the post
     data = json.dumps(post.as_dictionary())
     headers = {"Location": url_for("post_get", id=post.id)}
     return Response(data, 201, headers=headers, mimetype="application/json")
+
+@app.route("/api/posts/<id>", methods=["PUT"])
+@decorators.accept("application/json")
+@decorators.require("application/json")
+def posts_edit(id):
+    """ Edit post """
+    data = request.json
+
+    # Validate submitted header data, as json, against post_schema
+    try:
+        validate(data, post_schema)
+    except ValidationError as error:
+        data = {"message": error.message}
+        return Response(json.dumps(data), 422, mimetype="application/json")
+
+    # Query post id#.  If not found, return 404 and bail.
+    post = session.query(models.Post).get(id)
+
+    if not post:
+        message = "Could not find post with id {}".format(id)
+        data = json.dumps({"message": message})
+        return Response(data, 404, mimetype="application/json")
+
+    # Edit post
+    post.title = data["title"]
+    post.body = data["body"]
+    session.commit()
+
+    data = json.dumps(post.as_dictionary())
+    headers = {"Location": url_for("post_get", id=post.id)}
+    return Response(data, 200, headers=headers, mimetype="application/json")
+
+
 
 

@@ -221,6 +221,65 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(data["message"], "'body' is a required property")
 
 
+    def test_modified_data(self):
+        """ Tests editing existing post """
+        data = {
+        "title": "Example Post",
+        "body": "Just a test"
+        }
+
+        mod_data = {
+        "title": "Example Post modified",
+        "body": "This is my new bodayyyy"
+        }
+
+        response = self.client.post("/api/posts",
+            data=json.dumps(data),
+            content_type="application/json",
+            headers=[("Accept", "application/json")]
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.mimetype, "application/json")
+        self.assertEqual(urlparse(response.headers.get("Location")).path,
+            "/api/posts/1")
+
+        data = json.loads(response.data.decode("ascii"))
+        self.assertEqual(data["id"], 1)
+        self.assertEqual(data["title"], "Example Post")
+
+        posts = session.query(models.Post).all()
+        self.assertEqual(len(posts), 1)
+
+        post = posts[0]
+        self.assertEqual(post.title, "Example Post")
+        self.assertEqual(post.body, "Just a test")
+
+        # Now test the PUT modified version
+        response = self.client.put("/api/posts/{}".format(1),
+            data=json.dumps(mod_data),
+            content_type="application/json",
+            headers=[("Accept", "application/json")]
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "application/json")
+        self.assertEqual(urlparse(response.headers.get("Location")).path,
+            "/api/posts/1")
+
+        data = json.loads(response.data.decode("ascii"))
+        self.assertEqual(data["id"], 1)
+        self.assertEqual(data["title"], "Example Post modified")
+        self.assertEqual(data["body"], "This is my new bodayyyy")
+
+        posts = session.query(models.Post).all()
+        self.assertEqual(len(posts), 1)
+
+        post = posts[0]
+        self.assertEqual(post.title, "Example Post modified")
+        self.assertEqual(post.body, "This is my new bodayyyy")
+
+
     def tearDown(self):
         """ Test teardown """
         session.close()
