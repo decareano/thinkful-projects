@@ -17,7 +17,6 @@ class DevelopmentConfig(object):
         cfg_params['port'],
         cfg_params['dbname'])
 
-    print(DATABASE_URI)
 
     SECRET_KEY = cfg_params['secret_key']
     SERVER_IP = cfg_params['host']
