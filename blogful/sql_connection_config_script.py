@@ -6,9 +6,10 @@ import getpass
 # PostgreSQL usernames on different machines
 
 def main():
+	secret_env_key = ""
+
 	print("Configuring PostgreSQL connection JSON config file.")
-	projectname = input('Please enter project name.> ')
-	db_name = input('Please enter database name.> ')
+	db_name = input('Please enter SQL database name.> ')
 	username = input('Please enter db admin username.> ')
 	password = getpass.getpass('Enter admin password:> ')
 	host = input("Please enter database host server (leave blank for default localhost) > ")
@@ -22,7 +23,9 @@ def main():
 	"user": username,
 	"password": password,
 	"host": host,
-	"port": port
+	"port": port,
+	"secret_key": secret_env_key,
+	"server_ip": host
 	}
 
 	filename = "sqlconnection_config_%s.json" % (projectname)
