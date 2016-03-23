@@ -70,6 +70,7 @@ def post_delete(id):
 
 @app.route("/api/posts", methods=["POST"])
 @decorators.accept("application/json")
+@decorators.require("application/json")
 def posts_post():
     """ Add new post """
     data = request.json

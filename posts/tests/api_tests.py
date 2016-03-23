@@ -169,7 +169,22 @@ class TestAPI(unittest.TestCase):
         post = posts[0]
         self.assertEqual(post.title, "Example Post")
         self.assertEqual(post.body, "Just a test")
-        
+
+    def test_unsupported_mimetype(self):
+        data = "<xml></xml>"
+        response = self.client.post("/api/posts",
+            data=json.dumps(data),
+            content_type="application/xml",
+            headers=[("Accept", "application/json")]
+        )
+
+        self.assertEqual(response.status_code, 415)
+        self.assertEqual(response.mimetype, "application/json")
+
+        data = json.loads(response.data.decode("ascii"))
+        self.assertEqual(data["message"],
+            "Request must contain application/json data")
+
 
 
     def tearDown(self):
