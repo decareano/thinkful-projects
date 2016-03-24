@@ -17,7 +17,7 @@ class Song(Base):
         song = {
         "id": self.id,
         "file": {
-            "id": self.file.id
+            "id": self.file.id,
             "name": self.file.filename
             }
         }
@@ -26,13 +26,12 @@ class File(Base):
     """ File class scheme """
     __tablename__ = "file"
     id = Column(Integer, primary_key=True)
-    filename = Column(String(128))
-    song_id = Column(Integer, ForeignKey=('song.id'))
+    filename = Column(String(128), nullable=False)
+    song_id = Column(Integer, ForeignKey=('song.id'), nullable = False)
     # song = relationship("Song", back_populates="file")
 
     def as_dictionary(self):
         file = {
-            "id": self.file.id
+            "id": self.file.id,
             "name": self.file.filename
         }
-    
