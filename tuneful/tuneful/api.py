@@ -45,4 +45,12 @@ file_schema = {
 }
 
 @app.route("/api/songs", methods=["GET"])
+@decorators.accept("application/json")
+def songs_get():
+    """ Returns list of all songs """
+    songs = session.query(models.Song)
+    songs = songs.order_by(models.Song.id)
 
+    data = json.dumps([songs.as_dictionary() for song in songs])
+    return Response(data, 200 mimetype="application/json")
+    
