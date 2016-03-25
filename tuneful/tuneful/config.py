@@ -1,5 +1,6 @@
 import json
 import urllib
+import urllib.parse
 
 class DevelopmentConfig(object):
     try:
@@ -17,11 +18,11 @@ class DevelopmentConfig(object):
         cfg_params['port'],
         cfg_params['dbname'])
 
-
     SECRET_KEY = cfg_params['secret_key']
     SERVER_IP = cfg_params['host']
     DEBUG = True
     UPLOAD_FOLDER = "uploads"
+
 
 class TestingConfig(object):
     try:
@@ -31,7 +32,6 @@ class TestingConfig(object):
         print("Error loading test_config_variables configuration file.  Please run sql_connection_config_script.py")
         print("Exception: {}".format(e))
         sys.exit()
-
 
     DATABASE_URI = "postgresql://{}:{}@{}:{}/{}".format(
         cfg_params['user'],

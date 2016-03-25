@@ -7,7 +7,7 @@ from jsonschema import validate, ValidationError
 
 from . import models
 from . import decorators
-from tuneful.main import app
+from .main import app
 from .database import session
 from .utils import upload_path
 
@@ -20,9 +20,9 @@ song_schema = {
             "type": "object",
             "properties": {
                 "id": {"type" : "number"},
-                "name": {"type" : "string"}
+                "filename": {"type" : "string"}
             },
-            "required": ["id", "name"]
+            "required": ["id", "filename"]
         }
     },
 
@@ -39,9 +39,9 @@ file_schema = {
     "type": "object",
     "properties": {
         "id": {"type", "number"},
-        "name": {"type", "string"}
+        "filename": {"type", "string"}
     },
-    "required": ["id", "name"]
+    "required": ["id", "filename"]
 }
 
 @app.route("/api/songs", methods=["GET"])
@@ -72,3 +72,7 @@ def song_get(id):
     data = json.dumps(song.as_dictionary())
     return Response(data, 200, mimetype="application/json")
 
+@app.route("/api/songs", methods=["POST"])
+@decorators.accept("application/json")
+def song_post():
+    pass

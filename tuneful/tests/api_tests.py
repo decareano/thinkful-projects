@@ -1,7 +1,7 @@
-import unittest
 import os
 import shutil
 import json
+import unittest
 try: from urllib.parse import urlparse
 except ImportError: from urlparse import urlparse # Py2 compatibility
 from io import StringIO
@@ -33,8 +33,8 @@ class TestAPI(unittest.TestCase):
     def test_get_empty_songs(self):
         """ Getting posts from empty db """
         response = self.client.get("/api/songs",
-            headers=[("Accept", "application/json")]
-            )
+                headers=[("Accept", "application/json")]
+                )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.mimetype, "application/json")
 
@@ -43,7 +43,26 @@ class TestAPI(unittest.TestCase):
 
     def test_get_song(self):
         """ Getting a single post from a populated db """
+        fileA = models.File(filename="testA.wav")
+        songA = models.Song(file=fileA)
         
+        fileB = models.File(filename="testB.wav")
+        songB = models.Song(file=fileB)
+
+        session.add_all([fileA, fileB, songA, songB])
+        session.commit()
+
+
+        response = self.client.get("api/songs/{}".format(songB.id),
+            headers=[("Accept", "application/json")])
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "application/json")
+
+        song = json.loads(response.data.decode("ascii"))
+        self.assertEqual(song["file"]["filename"], "testB.wav")
+
+
 
     def tearDown(self):
         """ Test teardown """
