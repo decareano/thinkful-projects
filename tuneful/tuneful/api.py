@@ -47,12 +47,28 @@ file_schema = {
 @app.route("/api/songs", methods=["GET"])
 @decorators.accept("application/json")
 def songs_get():
-    """ Returns list of all songs """
+    """ Returns list of songs """
     songs = session.query(models.Song)
     songs = songs.order_by(models.Song.id)
 
-    # Needs filtering.  
+    # Needs filtering?  Doesn't really make sense from the schema, 
+    # not enough properties to work with
 
     data = json.dumps([songs.as_dictionary() for song in songs])
+    return Response(data, 200, mimetype="application/json")
+
+@app.route("/api/songs/<int:id>", methods=["GET"])
+@decorators.accept("application/json")
+def song_get(id):
+    """ Returns single song """
+    song = session.query(models.Song).get(id)
+
+    # Check for song's existence
+    if not song:
+        message = "Could not find song with id {}".format(id)
+        data = json.dumps({"message": message})
+        return Response(data, 404, mimetype="application/json")
+
+    data = json.dumps(song.as_dictionary())
     return Response(data, 200, mimetype="application/json")
 
