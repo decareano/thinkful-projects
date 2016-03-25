@@ -52,7 +52,6 @@ class TestAPI(unittest.TestCase):
         session.add_all([fileA, fileB, songA, songB])
         session.commit()
 
-
         response = self.client.get("api/songs/{}".format(songB.id),
             headers=[("Accept", "application/json")])
 
