@@ -15,7 +15,7 @@ from tuneful import models
 from tuneful.utils import upload_path
 from tuneful.database import Base, engine, session
 
-os.environ["CONFIG_PATH"] = "tuneful.config.TestingConfig"
+
 
 class TestAPI(unittest.TestCase):
     """ Tests for the tuneful API """
