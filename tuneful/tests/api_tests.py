@@ -31,6 +31,7 @@ class TestAPI(unittest.TestCase):
         os.mkdir(upload_path())
 
     def test_get_empty_songs(self):
+        """ Getting posts from empty db """
         response = self.client.get("/api/songs",
             headers=[("Accept", "application/json")]
             )
@@ -39,6 +40,10 @@ class TestAPI(unittest.TestCase):
 
         data = json.loads(response.data.decode("ascii"))
         self.assertEqual(data, [])
+
+    def test_get_song(self):
+        """ Getting a single post from a populated db """
+        
 
     def tearDown(self):
         """ Test teardown """
