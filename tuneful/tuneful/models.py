@@ -28,7 +28,7 @@ class File(Base):
     __tablename__ = "file"
     id = Column(Integer, primary_key=True)
     filename = Column(String(128), nullable=False)
-    song_id = Column(Integer, ForeignKey('song.id'), nullable = False)
+    song_id = Column(Integer, ForeignKey('song.id'))
 
     def as_dictionary(self):
         file = {

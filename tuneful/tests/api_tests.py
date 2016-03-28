@@ -41,6 +41,20 @@ class TestAPI(unittest.TestCase):
         data = json.loads(response.data.decode("ascii"))
         self.assertEqual(data, [])
 
+    def test_unsupported_accept_header(self):
+        response = self.client.get("/api/songs",
+            headers=[("Accept", "application/xml")]
+            )
+
+        self.assertEqual(response.status_code, 406)
+        self.assertEqual(response.mimetype, "application/json")
+
+        data = json.loads(response.data.decode("ascii"))
+        self.assertEqual(data["message"],
+            "Request must accept application/json data")
+
+
+        
     def test_get_song(self):
         """ Getting a single post from a populated db """
         fileA = models.File(filename="testA.wav")
@@ -62,6 +76,68 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(song["file"]["filename"], "testB.wav")
 
 
+    def test_post_song(self):
+        fileA = models.File(filename="testA.wav")
+        songA = models.Song(file=fileA)
+        data = fileA.as_dictionary()
+
+
+        response = self.client.post("api/songs",
+            data=json.dumps(data),
+            content_type="application/json",
+            headers=[("Accept", "application/json")]
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.mimetype, "application/json")
+        self.assertEqual(urlparse(response.headers.get("Location")).path,
+                         "/api/songs/1")
+
+        data = json.loads(response.data.decode("ascii"))
+        self.assertEqual(data["id"], 1)
+        self.assertEqual(data["file"]["filename"], "testA.wav")
+
+        songs = session.query(models.Song).all()
+        self.assertEqual(len(songs), 1)
+
+        song = songs[0]
+        self.assertEqual(song.file.filename, "testA.wav")
+
+
+    def test_invalid_data(self):
+        """ Posting a song file with an invalid filename """
+        data = {
+            "filename": 42
+        }
+
+        response = self.client.post("/api/songs",
+            data=json.dumps(data),
+            content_type="application/json",
+            headers=[("Accept", "application/json")]
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+        data = json.loads(response.data.decode("ascii"))
+        self.assertEqual(data["message"], "42 is not of type 'string'")
+
+    def test_missing_data(self):
+        """ Posting a post with a missing body """
+        data = {
+            "filename": "",
+        }
+
+        response = self.client.post("/api/songs",
+            data=json.dumps(data),
+            content_type="application/json",
+            headers=[("Accept", "application/json")]
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+        data = json.loads(response.data.decode("ascii"))
+        print(data)
+        self.assertEqual(data["message"], "'' is too short")
 
     def tearDown(self):
         """ Test teardown """

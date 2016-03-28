@@ -19,30 +19,29 @@ song_schema = {
         "file": {
             "type": "object",
             "properties": {
-                "id": {"type" : "number"},
                 "filename": {"type" : "string"}
             },
-            "required": ["id", "filename"]
+            "required": ["filename"]
         }
     },
 
     "type": "object",
 
     "properties": {
-        "id": {"type" : "number"},
         "file": {"$ref": "#/definitions/file"}
     },
-    "required": ["id", "file"]
+    "required": ["file"]
 }
 
 file_schema = {
     "type": "object",
     "properties": {
-        "id": {"type", "number"},
-        "filename": {"type", "string"}
+            "filename": {"type": "string",
+            "minLength": 2}
     },
-    "required": ["id", "filename"]
+    "required": ["filename"]
 }
+
 
 @app.route("/api/songs", methods=["GET"])
 @decorators.accept("application/json")
@@ -56,6 +55,7 @@ def songs_get():
 
     data = json.dumps([songs.as_dictionary() for song in songs])
     return Response(data, 200, mimetype="application/json")
+
 
 @app.route("/api/songs/<int:id>", methods=["GET"])
 @decorators.accept("application/json")
@@ -72,7 +72,37 @@ def song_get(id):
     data = json.dumps(song.as_dictionary())
     return Response(data, 200, mimetype="application/json")
 
+
 @app.route("/api/songs", methods=["POST"])
 @decorators.accept("application/json")
 def song_post():
-    pass
+    """ Post a new song, by posting a file object """
+    data = request.json
+
+    # Check if it's legit
+    try:
+        validate(data, file_schema)
+    except ValidationError as error:
+        data = {"message": error.message}
+        return Response(json.dumps(data), 422, mimetype="application/json")
+
+
+
+    # Add song to the database
+    try:
+        file = models.File(filename=data["filename"])
+        song = models.Song(file=file)
+        session.add(file, song)
+        session.commit()
+    except Exception as error:
+        data = {"message": error.message}
+        return Response(json.dumps(data), 422, mimetype="application/json")
+
+
+
+    # Return a 201 Created, containing the song as JSON and with the
+    # Location header set to the location of the song
+    data = json.dumps(song.as_dictionary())
+    headers = {"Location": url_for("song_get", id=song.id)}
+    return Response(data, 201, headers=headers,
+        mimetype="application/json")
