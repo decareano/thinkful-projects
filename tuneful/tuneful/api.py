@@ -100,7 +100,7 @@ def song_post():
 
     # Check if it's legit
     try:
-        validate(data, file_schema)
+        validate(data, file_POST_Schema)
     except ValidationError as error:
         data = {"message": error.message}
         return Response(json.dumps(data), 422, mimetype="application/json")
