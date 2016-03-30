@@ -37,9 +37,28 @@ file_schema = {
     "type": "object",
     "properties": {
             "filename": {"type": "string",
-            "minLength": 2}
+            "minLength": 1}
     },
     "required": ["filename"]
+}
+
+file_POST_Schema = {
+    "definitions": {
+        "file": {
+            "type": "object",
+            "properties": {
+                "id": {"type" : "number"}
+            },
+            "required": ["id"]
+        }
+    },
+
+    "type": "object",
+
+    "properties": {
+        "file": {"$ref": "#/definitions/file"}
+    },
+    "required": ["file"]
 }
 
 
@@ -85,6 +104,9 @@ def song_post():
     except ValidationError as error:
         data = {"message": error.message}
         return Response(json.dumps(data), 422, mimetype="application/json")
+
+    # Check if song already exists:
+
 
 
 
