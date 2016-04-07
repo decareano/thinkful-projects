@@ -97,7 +97,8 @@ def song_get(id):
 def song_post():
     """ Post a new song, by posting a file object """
     data = request.json
-    id = data["file"]["id"]
+    # print(data)
+    # print(data["file"]["id"])
 
     # Check if it's legit
     try:
@@ -106,19 +107,19 @@ def song_post():
         data = {"message": error.message}
         return Response(json.dumps(data), 422, mimetype="application/json")
 
-    # Check if song already exists:
-    file = session.query(models.File).get(file.id)
-    if file:
-        message = "File with id {} already in database.".format(id)
+    id = data["file"]["id"]
+
+    # Check if song exists. Returns error if not found:
+    file = session.query(models.File).get(id)
+    if not file:
+        message = "File with id {} not in database.".format(id)
         data = json.dumps({"message": message})
-        # Which error to use?  403, or 409, or...?
-        return Response(data, 409, mimetype="application/json")
+        return Response(data, 404, mimetype="application/json")
 
     # Add song to the database
     try:
-        file = models.File(data)
-        # song = models.Song(file=file)
-        session.add(file)
+        song = models.Song(file=file)
+        session.add(file, song)
         session.commit()
     except Exception as error:
         data = {"message": error.message}
