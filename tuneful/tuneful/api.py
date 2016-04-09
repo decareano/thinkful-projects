@@ -37,9 +37,10 @@ file_schema = {
     "type": "object",
     "properties": {
             "filename": {"type": "string",
-            "minLength": 1}
+            "minLength": 1},
+            "id": {"type": "number"}
     },
-    "required": ["filename"]
+    "required": ["filename", "id"]
 }
 
 file_POST_Schema = {
@@ -133,3 +134,89 @@ def song_post():
     headers = {"Location": url_for("song_get", id=song.id)}
     return Response(data, 201, headers=headers,
         mimetype="application/json")
+
+# WTF is the PUT request here?  THIS DOESNT MAKE SENSE THE WAY THEY DID IT
+@app.route("/api/songs", methods=["PUT"])
+@decorators.accept("application/json")
+def song_post():
+    """ PUT (edit) an existing file, and all songs pointing to it """
+    data = request.json
+    # print(data)
+    # print(data["file"]["id"])
+
+    # Check if it's legit
+    try:
+        validate(data, file_Schema)
+    except ValidationError as error:
+        data = {"message": error.message}
+        return Response(json.dumps(data), 422, mimetype="application/json")
+
+    id = data["file"]["id"]
+
+    # Check if song exists. Returns error if not found:
+    file = session.query(models.File).get(id)
+    if not file:
+        message = "File with id {} not in database.".format(id)
+        data = json.dumps({"message": message})
+        return Response(data, 404, mimetype="application/json")
+
+    file.filename = data["file"]["filename"]
+
+    # Edit songs with this file to the database
+    try:
+        songs = session.query(models.Song).filter(Song.file.id == id)
+        for song in songs:
+            song = models.Song(file=file)
+        session.commit()
+    except Exception as error:
+        data = {"message": error.message}
+        return Response(json.dumps(data), 422, mimetype="application/json")
+
+    # Return a 200 Accepted, containing the song as JSON and with the
+    # Location header set to the location of the song
+    data = json.dumps(song.as_dictionary())
+    headers = {"Location": url_for("song_get", id=song.id)}
+    return Response(data, 200, headers=headers,
+        mimetype="application/json")
+
+
+@app.route("/api/songs", methods=["DELETE"])
+@decorators.accept("application/json")
+def song_post():
+    """ DELETE an existing file and all songs associated with it"""
+    data = request.json
+    # print(data)
+    # print(data["file"]["id"])
+
+    # Check if it's legit
+    try:
+        validate(data, file_POST_Schema)
+    except ValidationError as error:
+        data = {"message": error.message}
+        return Response(json.dumps(data), 422, mimetype="application/json")
+
+    id = data["file"]["id"]
+
+    # Check if song exists. Returns error if not found:
+    file = session.query(models.File).get(id)
+    if not file:
+        message = "File with id {} not in database.".format(id)
+        data = json.dumps({"message": message})
+        return Response(data, 404, mimetype="application/json")
+
+    # DELETE songs with this file in the db.  Also delete the file.
+    try:
+        songs = session.query(models.Song).filter(Song.file.id == id)
+        for song in songs:
+            session.delete(song)
+        session.delete(file)
+        session.commit()
+    except Exception as error:
+        data = {"message": error.message}
+        return Response(json.dumps(data), 422, mimetype="application/json")
+
+    # Return a 200 Accepted, containing the song as JSON and with the
+    # Location header set to the location of the song
+    message = "Deleted file, and songs pointing to file, with id {}".format(id)
+    data = json.dumps({"message": message})
+    return Response(data, 200, mimetype="application/json")
