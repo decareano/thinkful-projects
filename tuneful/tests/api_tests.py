@@ -141,7 +141,7 @@ class TestAPI(unittest.TestCase):
 
 
     def test_invalid_data(self):
-        """ Posting a song file with an invalid filename """
+        """ Posting a song file with an invalid format """
         data = {
             "file": {
                 "id": "pancakes"
@@ -159,24 +159,24 @@ class TestAPI(unittest.TestCase):
         data = json.loads(response.data.decode("ascii"))
         self.assertEqual(data["message"], "'pancakes' is not of type 'number'")
 
-    # def test_missing_data(self):
-    #     """ Posting a post with a missing body """
-    #     data = {
-    #         "file": {
-    #             "id": 2
-    #             }
-    #     }
+    def test_post_absent_file(self):
+        """ Posting a file not in db """
+        data = {
+            "file": {
+                "id": 1
+                }
+        }
 
-    #     response = self.client.post("/api/songs",
-    #         data=json.dumps(data),
-    #         content_type="application/json",
-    #         headers=[("Accept", "application/json")]
-    #     )
+        response = self.client.post("/api/songs",
+            data=json.dumps(data),
+            content_type="application/json",
+            headers=[("Accept", "application/json")]
+        )
 
-    #     self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 404)
 
-    #     data = json.loads(response.data.decode("ascii"))
-    #     self.assertEqual(data["message"], "'' is too short")
+        # data = json.loads(response.data.decode("ascii"))
+        # self.assertEqual(data["message"], "'' is too short")
 
     def tearDown(self):
         """ Test teardown """
