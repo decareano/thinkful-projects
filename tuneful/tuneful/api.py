@@ -151,7 +151,7 @@ def song_post():
         data = {"message": error.message}
         return Response(json.dumps(data), 422, mimetype="application/json")
 
-    id = data["file"]["id"]
+    id = data["id"]
 
     # Check if song exists. Returns error if not found:
     file = session.query(models.File).get(id)
@@ -160,7 +160,7 @@ def song_post():
         data = json.dumps({"message": message})
         return Response(data, 404, mimetype="application/json")
 
-    file.filename = data["file"]["filename"]
+    file.filename = data["filename"]
 
     # Edit songs with this file to the database
     try:
