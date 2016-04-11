@@ -114,6 +114,7 @@ class TestAPI(unittest.TestCase):
 
     def test_invalid_data(self):
         """ Posting a song file with an invalid format """
+        # NEEDS TO BE MORE GENERIC
         data = {
             "file": {
                 "id": "pancakes"
@@ -168,6 +169,49 @@ class TestAPI(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.mimetype, "application/json")
+
+        # Try GET to check if 404
+        response = self.client.get("api/songs/{}".format(songA.id),
+            headers=[("Accept", "application/json")])
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.mimetype, "application/json")
+
+    def test_edit_song(self):
+        fileA = models.File(filename="testA.wav")
+        fileB = models.File(filename="testB.wav")
+        song = models.Song(file=fileA)
+
+        session.add_all([fileA, fileB, song])
+        session.commit()
+
+        newfile = {
+        "file":{
+            "id": fileB.id
+            }
+        }
+        data = newfile
+
+        response = self.client.get("api/songs/{}".format(song.id),
+            headers=[("Accept", "application/json")])
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "application/json")
+        songjson = json.loads(response.data.decode("ascii"))
+        self.assertEqual(songjson["file"]["filename"], "testA.wav")
+
+        response = self.client.put("/api/songs/{}".format(song.id),
+            data = json.dumps(data),
+            content_type = "application/json",
+            headers=[("Accept", "application/json")]
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "application/json")
+        songjson = json.loads(response.data.decode("ascii"))
+        self.assertEqual(songjson["file"]["filename"], "testB.wav")
+        self.assertEqual(songjson["file"]["id"], fileB.id)
+
+
 
 
     def tearDown(self):

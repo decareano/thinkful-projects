@@ -144,24 +144,30 @@ def song_edit(id):
 
     # Check if it's legit schema
     try:
-        validate(data, file_Schema)
+        validate(data, file_POST_Schema)
     except ValidationError as error:
         data = {"message": error.message}
         return Response(json.dumps(data), 422, mimetype="application/json")
 
+    fileid = data["file"]["id"]
 
-    # Check if file exists. Returns error if not found:
-    file = session.query(models.File).get(id)
-    if not file:
-        message = "File with id {} not in database.".format(id)
+    # Check if song exists. Returns error if not found:
+    song = session.query(models.Song).get(id)
+    if not song:
+        message = "Song with id {} not in database.".format(id)
         data = json.dumps({"message": message})
         return Response(data, 404, mimetype="application/json")
 
-    file.filename = data["filename"]
+    # Check if file exists. Returns error if not found:
+    file = session.query(models.File).get(fileid)
+    if not file:
+        message = "File with id {} not in database.".format(fileid)
+        data = json.dumps({"message": message})
+        return Response(data, 404, mimetype="application/json")
 
-    # Edit song with this file
+    # Edit song to point to new file
     try:
-        song = models.Song(file=file)
+        song.file = file
         session.commit()
     except Exception as error:
         data = {"message": error.message}
