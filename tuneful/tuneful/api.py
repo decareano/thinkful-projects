@@ -73,7 +73,8 @@ def songs_get():
     # Needs filtering?  Doesn't really make sense from the schema, 
     # not enough properties to work with
 
-    data = json.dumps([songs.as_dictionary() for song in songs])
+    data = json.dumps([song.as_dictionary() for song in songs])
+    # print(data)
     return Response(data, 200, mimetype="application/json")
 
 

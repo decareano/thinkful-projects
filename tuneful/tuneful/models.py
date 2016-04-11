@@ -19,7 +19,8 @@ class Song(Base):
         "id": self.id,
         "file": {
             "id": self.file.id,
-            "filename": self.file.filename
+            "filename": self.file.filename,
+            "path": url_for("uploaded_file", filename=self.file.filename)
             }
         }
         return song
