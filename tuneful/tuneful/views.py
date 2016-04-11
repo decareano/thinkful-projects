@@ -1,6 +1,6 @@
 from flask import render_template
 
-from tuneful import app
+from tuneful.main import app
 
 @app.route("/")
 def index():

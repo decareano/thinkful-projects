@@ -1,5 +1,5 @@
 import os
-from tuneful import app
+from tuneful.main import app
 
 def run():
     port = int(os.environ.get('PORT', 8080))

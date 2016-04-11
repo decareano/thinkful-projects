@@ -138,7 +138,7 @@ def song_post():
 # WTF is the PUT request here?  THIS DOESNT MAKE SENSE THE WAY THEY DID IT
 @app.route("/api/songs", methods=["PUT"])
 @decorators.accept("application/json")
-def song_post():
+def song_put():
     """ PUT (edit) an existing file, and all songs pointing to it """
     data = request.json
     # print(data)
@@ -162,11 +162,9 @@ def song_post():
 
     file.filename = data["filename"]
 
-    # Edit songs with this file to the database
+    # Edit song with this file
     try:
-        songs = session.query(models.Song).filter(Song.file.id == id)
-        for song in songs:
-            song = models.Song(file=file)
+        song = models.Song(file=file)
         session.commit()
     except Exception as error:
         data = {"message": error.message}
@@ -182,11 +180,9 @@ def song_post():
 
 @app.route("/api/songs", methods=["DELETE"])
 @decorators.accept("application/json")
-def song_post():
+def song_delete():
     """ DELETE an existing file and all songs associated with it"""
     data = request.json
-    # print(data)
-    # print(data["file"]["id"])
 
     # Check if it's legit
     try:

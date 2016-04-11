@@ -11,7 +11,8 @@ class Song(Base):
     """ Song class scheme """
     __tablename__ = "song"
     id = Column(Integer, primary_key=True)
-    file = relationship("File", uselist=False, backref="song")
+    # file = relationship("File", uselist=False, backref="song")
+    file_id = Column(Integer, ForeignKey('file.id'))
 
     def as_dictionary(self):
         song = {
@@ -28,7 +29,8 @@ class File(Base):
     __tablename__ = "file"
     id = Column(Integer, primary_key=True)
     filename = Column(String(128), nullable=False)
-    song_id = Column(Integer, ForeignKey('song.id'))
+    song = relationship("Song", uselist=False, backref="file")
+    # song_id = Column(Integer, ForeignKey('song.id'))
 
     def as_dictionary(self):
         file = {
