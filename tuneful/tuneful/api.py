@@ -70,8 +70,23 @@ def songs_get():
     songs = session.query(models.Song)
     songs = songs.order_by(models.Song.id)
 
+    # Check if song files are legit.  If not, delete them
+    for song in songs:
+        print(os.path.isfile(upload_path(song.file.filename)))
+        if not os.path.isfile(upload_path(song.file.filename)):
+            file = session.query(models.File).get(song.file.id)
+            print("Deleting song id {} with file id {}".format(
+                song.id, file.id))
+            session.delete(song)
+            session.delete(file)
+            session.commit()
+
     # Needs filtering?  Doesn't really make sense from the schema, 
     # not enough properties to work with
+    if not songs:
+        message = "No songs in database."
+        data = json.dumps({"message": message})
+        return Response(data, 404, mimetype="application/json")
 
     data = json.dumps([song.as_dictionary() for song in songs])
     # print(data)
@@ -185,7 +200,7 @@ def song_edit(id):
 @app.route("/api/songs/<int:id>", methods=["DELETE"])
 @decorators.accept("application/json")
 def song_delete(id):
-    """ DELETE an existing file and all songs associated with it"""
+    """ DELETE an existing file, and song associated with it"""
 
     # Check if song exists. Returns error if not found:
     file = session.query(models.File).get(id)
