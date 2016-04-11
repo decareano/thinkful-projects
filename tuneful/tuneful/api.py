@@ -95,11 +95,11 @@ def song_get(id):
 
 @app.route("/api/songs", methods=["POST"])
 @decorators.accept("application/json")
+@decorators.require("application/json")
 def song_post():
     """ Post a new song, by posting a file object """
     data = request.json
-    # print(data)
-    # print(data["file"]["id"])
+
 
     # Check if it's legit
     try:
@@ -135,25 +135,22 @@ def song_post():
     return Response(data, 201, headers=headers,
         mimetype="application/json")
 
-# WTF is the PUT request here?  THIS DOESNT MAKE SENSE THE WAY THEY DID IT
-@app.route("/api/songs", methods=["PUT"])
+@app.route("/api/songs/<int:id>", methods=["PUT"])
 @decorators.accept("application/json")
-def song_put():
-    """ PUT (edit) an existing file, and all songs pointing to it """
+@decorators.require("application/json")
+def song_edit(id):
+    """ PUT (edit) an existing song """
     data = request.json
-    # print(data)
-    # print(data["file"]["id"])
 
-    # Check if it's legit
+    # Check if it's legit schema
     try:
         validate(data, file_Schema)
     except ValidationError as error:
         data = {"message": error.message}
         return Response(json.dumps(data), 422, mimetype="application/json")
 
-    id = data["id"]
 
-    # Check if song exists. Returns error if not found:
+    # Check if file exists. Returns error if not found:
     file = session.query(models.File).get(id)
     if not file:
         message = "File with id {} not in database.".format(id)
@@ -178,20 +175,10 @@ def song_put():
         mimetype="application/json")
 
 
-@app.route("/api/songs", methods=["DELETE"])
+@app.route("/api/songs/<int:id>", methods=["DELETE"])
 @decorators.accept("application/json")
-def song_delete():
+def song_delete(id):
     """ DELETE an existing file and all songs associated with it"""
-    data = request.json
-
-    # Check if it's legit
-    try:
-        validate(data, file_POST_Schema)
-    except ValidationError as error:
-        data = {"message": error.message}
-        return Response(json.dumps(data), 422, mimetype="application/json")
-
-    id = data["file"]["id"]
 
     # Check if song exists. Returns error if not found:
     file = session.query(models.File).get(id)
@@ -202,17 +189,15 @@ def song_delete():
 
     # DELETE songs with this file in the db.  Also delete the file.
     try:
-        songs = session.query(models.Song).filter(Song.file.id == id)
-        for song in songs:
-            session.delete(song)
+        song = session.query(models.Song).get(id)
+        session.delete(song)
         session.delete(file)
         session.commit()
     except Exception as error:
         data = {"message": error.message}
         return Response(json.dumps(data), 422, mimetype="application/json")
 
-    # Return a 200 Accepted, containing the song as JSON and with the
-    # Location header set to the location of the song
-    message = "Deleted file, and songs pointing to file, with id {}".format(id)
+    # Return a 200 Accepted
+    message = "Deleted file, and song pointing to file, with id {}".format(id)
     data = json.dumps({"message": message})
     return Response(data, 200, mimetype="application/json")

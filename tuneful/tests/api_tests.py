@@ -83,7 +83,7 @@ class TestAPI(unittest.TestCase):
 
         fileA_post = {
         "file":{
-            "id": 1
+            "id": fileA.id
             }
         }
         # data = fileA.as_dictionary()
@@ -135,7 +135,7 @@ class TestAPI(unittest.TestCase):
         """ Posting a file not in db """
         data = {
             "file": {
-                "id": 1
+                "id": 0
                 }
         }
 
@@ -146,6 +146,29 @@ class TestAPI(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
+
+    def test_delete_file(self):
+        fileA = models.File(filename="testA.wav")
+        songA = models.Song(file=fileA)
+        session.add_all([fileA, songA])
+        session.commit()
+
+
+        # 1st, see if song was successfully posted
+        response = self.client.get("api/songs/{}".format(songA.id),
+            headers=[("Accept", "application/json")])
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "application/json")
+
+        # Now test DELETE
+        response = self.client.delete("/api/songs/{}".format(songA.id),
+            headers=[("Accept", "application/json")]
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "application/json")
+
 
     def tearDown(self):
         """ Test teardown """
